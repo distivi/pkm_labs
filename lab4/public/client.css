@@ -1,0 +1,119 @@
+* {
+	font-family: "PT Sans";
+}
+
+.btn {
+	background: #3d9bdc;
+	border-radius: 5px;
+	color: #f7fdff;
+	height: 45px;
+	line-height: 45px;
+	margin: 10px;
+	text-align: center;
+	text-shadow: 1px 0px #111;
+	width: 120px;
+}
+
+.btn:hover {
+	background: #296c99;
+}
+
+.btn:active {
+	background: #14374e;
+}
+
+
+p {
+	margin: 20px;
+}
+
+a {
+	margin: 20px;
+	color: #307967;
+}
+
+.parent {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	overflow: auto;
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.popup {
+	position: absolute;
+	width: 300px;
+	height: 250px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	margin: auto;
+
+
+	background: #6d686f;
+	width: 300px;
+	height: 200px;
+	border-radius: 5px;
+	box-shadow: 5px 5px #514f50;
+}
+
+.message-block {
+	width: 90%;
+	height: 100px;
+	margin: 20px auto;
+	vertical-align: center;
+	text-align: center;
+	line-height: 100px;
+	color: white;
+}
+
+
+
+.spinner {
+	margin: auto;
+	width: 70px;
+	text-align: center;
+}
+
+.spinner > div {
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+  animation: bouncedelay 1.4s infinite ease-in-out;
+  /* Prevent first frame from flickering when animation starts */
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bouncedelay {
+  0%, 80%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 40% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
