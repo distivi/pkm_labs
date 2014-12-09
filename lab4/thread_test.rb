@@ -37,13 +37,11 @@ end
 
 thr_loop = Thread.new do
 	loop do
-		sleep(2)
 		if tasks.length > 0
 			tasks.each do |t|
 				t.run
 			end
 		end
-		puts "loop thread"
 		if kill
 			Thread.current.kill
 		end

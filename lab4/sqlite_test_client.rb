@@ -11,7 +11,6 @@ class DB_controller
 
 	def exequte_sql(sql_string)
 		begin
-			
 			stm = @db.prepare sql_string
 			rs = stm.execute
 		rescue SQLite3::Exception => e 
@@ -21,8 +20,6 @@ class DB_controller
 		ensure
 			return rs
 		end
-
-		# @db.close if @db
 	end
 
 	def create_table
@@ -61,12 +58,13 @@ class DB_controller
 			     threads.task,
 			      threads.memory,
 			       threads.duration_time 
-			from clients 
-			inner join threads 
+			from threads
+			cross join clients
 			on clients.id = threads.client_id;
 		SQL
 
 		result = exequte_sql(sql_string)
+		puts "result #{result}"
 =begin
 		html_code = "<table>\n"
 		html_code += "\t<row>\n\t\t"
@@ -175,37 +173,60 @@ class DB_controller
 	end
 
 	def test_insert
-		# exequte_sql	"DELETE FROM clients;"
-		# exequte_sql	"DELETE FROM threads;"
+		exequte_sql	"DELETE FROM clients;"
+		exequte_sql	"DELETE FROM threads;"
 		exequte_sql	"INSERT INTO Clients VALUES(1,'Bot 1', 102);"
 		exequte_sql	"INSERT INTO Clients VALUES(2,'Bot 2', 102);"
 
-		exequte_sql	"INSERT INTO Threads VALUES(10,103,1, 'some task for user 103',1000,60);"
-		exequte_sql	"INSERT INTO Threads VALUES(11,104,2, 'some task for user 104',1000,60);"
-		exequte_sql	"INSERT INTO Threads VALUES(13,106,2, 'some task for user 106',1000,60);"
-		exequte_sql	"INSERT INTO Threads VALUES(14,107,2, 'some task for user 107',1000,60);"
-		exequte_sql	"INSERT INTO Threads VALUES(15,108,2, 'some task for user 108',1000,60);"
+		exequte_sql	"INSERT INTO Threads VALUES(10,1,103, 'some task for user 103',1000,60);"
+		exequte_sql	"INSERT INTO Threads VALUES(11,2,104, 'some task for user 104',1000,60);"
+		exequte_sql	"INSERT INTO Threads VALUES(13,2,106, 'some task for user 106',1000,60);"
+		exequte_sql	"INSERT INTO Threads VALUES(14,2,107, 'some task for user 107',1000,60);"
+		exequte_sql	"INSERT INTO Threads VALUES(15,2,108, 'some task for user 108',1000,60);"
 	end
 end
 
 dbc = DB_controller.new("test.db")
-# dbc.test_insert
+dbc.test_insert
 html = dbc.select_status_table
 puts "11111"
 puts html
 
-# deleted_row = dbc.delete_thread_with_id(18)
+# puts "\n\n"
+
+# result = dbc.exequte_sql "select * from threads;"
+# result.each do |row|
+# 	row.each do |col|
+# 		print "\t#{col}\t|"
+# 	end
+# 	puts
+# end
+
+# puts "\n\n"
+
+# result = dbc.exequte_sql "select * from clients;"
+# result.each do |row|
+# 	row.each do |col|
+# 		print "\t#{col}\t|"
+# 	end
+# 	puts
+# end
+
+
+# deleted_row = dbc.delete_thread_with_id(14)
 # puts "delete_thread_with_id = #{deleted_row}"
 
 
 # puts "22222"
+# html = dbc.select_status_table
 # puts html
 
 
-# deleted_row = dbc.delete_client_with_id(109)
+# deleted_row = dbc.delete_client_with_id(2)
 # puts "delete_client_with_id = #{deleted_row}"
 
 # puts "33333"
+# html = dbc.select_status_table
 # puts html
 
 
