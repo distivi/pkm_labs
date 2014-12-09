@@ -8,11 +8,11 @@ class RESTfulParser
 		@DBController = DB_controller.new("development.db")
 	end
 
-	def parse_request(request_line)
-		puts "request_line #{request_line}"
-		chunks = request_line.split(" ")
-		method = chunks[0]
-		request_uri = chunks[1]
+	def parse_request(request_path,request_body)
+		puts "request_path #{request_path}"
+		puts "request_body #{request_body}"
+		method = "GET"
+		request_uri = request_path
 
 
 		puts "method #{method}"

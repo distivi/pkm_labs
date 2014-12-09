@@ -4,6 +4,8 @@ require "socket"
 require 'uri'
 require "http/parser"
 require 'json'
+require 'webrick'
+require 'stringio'
 
 #local files
 require './restful_parser'
@@ -32,36 +34,8 @@ class Server
 	def initialize( port, ip )
 		@server = TCPServer.open( ip, port )
 		@requests_parser = RESTfulParser.new()
-		@DBController = DB_controller.new("development.db")
 		run
 	end
-
-	# def requested_file(request_line)
-	# 	# puts "request_line #{request_line}"
-
-	# 	request_uri  = request_line.split(" ")[1]
-	# 	# puts "[0] #{request_line.split(" ")[0]}"
-	# 	# puts "request_uri #{request_uri}"
-	# 	path = URI(request_uri).path
-	# 	# puts "URI(request_uri).path === #{path}"
-
-	# 	clean = []
-
-	# 	# Split the path into components
-	# 	parts = path.split("/")
-
-	# 	parts.each do |part|
-	# 		# skip any empty or current directory (".") path components
-	# 		next if part.empty? || part == '.'
-	# 		# If the path component goes up one directory level (".."),
-	# 		# remove the last clean component.
-	# 		# Otherwise, add the component to the Array of clean components
-	# 		part == '..' ? clean.pop : clean << part
-	# 	end
-
-	# 	# return the web root joined to the clean path
-	# 	File.join(WEB_ROOT, *clean)
-	# end
 
 	def content_type(path)
 		ext = File.extname(path).split(".").last
@@ -84,8 +58,6 @@ class Server
 				IO.copy_stream(file, client)
 			end
 		else
-			message = "File not found\n"
-
 			# respond with a 404 error code to indicate the file does not exist
 			client.print "HTTP/1.1 404 Not Found\r\n" +
 						 "Content-Type: text/plain\r\n" +
@@ -100,8 +72,7 @@ class Server
 
 	def send_json_to_client(json,client)
 		json_string = json.to_json
-		puts "json_string: #{json_string}"
-		client.print "HTTP/1.1 201 Created\r\n" +
+		client.print "HTTP/1.1 200 OK\r\n" +
 					 "Content-Type: application/json; charset=utf-8\r\n" +
 					 "Content-Length: #{json_string.size}\r\n" +
 					 "Connection: close\r\n"
@@ -110,22 +81,49 @@ class Server
 		client.print json_string
 	end
 
+	def send_html_to_client(html,client)
+		client.print "HTTP/1.1 200 OK\r\n" +
+					 "Content-Type: application/html; charset=utf-8\r\n" +
+					 "Content-Length: #{html.size}\r\n" +
+					 "Connection: close\r\n"
+
+		client.print "\r\n"
+		client.print html
+	end
+
 	def run
 		loop do
 			Thread.start(@server.accept) do | client |
-				request = client.gets.chop
-
-				# puts "request: #{request}"
-				# path = requested_file(request)
-				type, result = @requests_parser.parse_request(request)
-				if type == "path"
-					puts "send file or 404"
-					send_file_to_client(result,client)
-				else
-					puts "send JSON #{result}"
-					send_json_to_client(result,client)
+				# request = client.gets.chop
+				puts "cluent accepted"
+				data = ""
+				while (tmp = client.read(1024))
+				    data += tmp
 				end
+				puts "data\n#{data}"
+
 				
+				req = WEBrick::HTTPRequest.new(WEBrick::Config::HTTP)
+				req.parse(StringIO.new(data))
+
+				puts req.path
+				req.each { |head| puts "#{head}:  #{req[head]}" }
+				puts req.body
+				
+
+				# path = requested_file(request)
+				type, result = @requests_parser.parse_request(req.path, req.body)
+
+				case type
+				when "path"
+					send_file_to_client(result,client)
+				when "html"
+					send_html_to_client(result,client)
+				when "json"
+					send_json_to_client(result,client)
+				else 
+					send_html_to_client("Bad request",client)
+				end
 
 				# Close the client, terminating the connection
 				client.close
