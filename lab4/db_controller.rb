@@ -50,53 +50,76 @@ class DB_controller
 
 	def select_status_table
 		sql_string = <<-SQL
-			select clients.id as "client_id",
-			 clients.name as "client_name",
-			  clients.status as "client_status",
-			   threads.id as "thread_id",
-			    threads.priority,
-			     threads.task,
-			      threads.memory,
-			       threads.duration_time 
+			select clients.id as "Client ID",
+			 clients.name as "Client Name",
+			  clients.status as "Client Status",
+			   threads.id as "Thread ID",
+			    threads.priority as "Priority",
+			     threads.task as "Task",
+			      threads.memory as "Memory",
+			       threads.duration_time as "Duration"
 			from threads
 			cross join clients
 			on clients.id = threads.client_id;
 		SQL
 
 		result = exequte_sql(sql_string)
-		puts "result #{result}"
-=begin
+
 		html_code = "<table>\n"
-		html_code += "\t<row>\n\t\t"
+		html_code += "\t<thead>\n\t\t<tr>\n\t\t\t"
 
 		result.columns.each do |col_name|
-			html_code += "<col>#{col_name}</col>"
+			html_code += "<th>#{col_name}</th>"
 		end
-		html_code += "\n\t<row>\n"
+		html_code += "\n\t\t<tr>\n\t</thead>\n\t<tbody>\n"
 
 		result.each do |row|
-			html_code += "\t<tr>\n\t\t"
+			html_code += "\t\t<tr>\n\t\t\t"
 			row.each do |col|
 				html_code += "<td>#{col}</td>"
 			end
-			html_code += "\n\t</tr>\n"
+			html_code += "\n\t\t</tr>\n"
 		end
 
-		html_code += "</table>"
-=end
-		html_code = ""
-		result.columns.each do |col_name|
-			html_code += "\t#{col_name}\t|"
-		end
+		html_code += "\t</tbody>\n</table>"
+
+		# html_code = ""
+		# result.columns.each do |col_name|
+		# 	html_code += "\t#{col_name}\t|"
+		# end
 		
-		result.each do |row|
-			html_code += "\n"
-			row.each do |col|
-				html_code += "\t#{col}\t|"
+		# result.each do |row|
+		# 	html_code += "\n"
+		# 	row.each do |col|
+		# 		html_code += "\t#{col}\t|"
+		# 	end
+		# end
+
+		return html_code
+	end
+
+	def is_exist_client_with_id(id)
+		if id
+			sql_string = "SELECT COUNT(*) FROM clients WHERE id = #{id};"
+			result = exequte_sql sql_string
+			if result.next_hash["COUNT(*)"] > 0
+				return true
 			end
 		end
 
-		return html_code
+		return false
+	end
+
+	def is_exist_thread_with_id(id)
+		if id
+			sql_string = "SELECT COUNT(*) FROM threads WHERE id = #{id};"
+			result = exequte_sql sql_string
+			if result.next_hash["COUNT(*)"] > 0
+				return true
+			end
+		end
+
+		return false
 	end
 
 	def add_client(client_hash)
@@ -176,8 +199,10 @@ class DB_controller
 		exequte_sql	"DELETE FROM clients;"
 		exequte_sql	"DELETE FROM threads;"
 		exequte_sql	"INSERT INTO Clients VALUES(1,'Bot 1', 102);"
+		exequte_sql	"INSERT INTO Clients VALUES(1,'Bot 1', 102);"
 		exequte_sql	"INSERT INTO Clients VALUES(2,'Bot 2', 102);"
 
+		exequte_sql	"INSERT INTO Threads VALUES(10,1,103, 'some task for user 103',1000,60);"
 		exequte_sql	"INSERT INTO Threads VALUES(10,1,103, 'some task for user 103',1000,60);"
 		exequte_sql	"INSERT INTO Threads VALUES(11,2,104, 'some task for user 104',1000,60);"
 		exequte_sql	"INSERT INTO Threads VALUES(13,2,106, 'some task for user 106',1000,60);"
@@ -186,11 +211,11 @@ class DB_controller
 	end
 end
 
-dbc = DB_controller.new("test.db")
-dbc.test_insert
-html = dbc.select_status_table
-puts "11111"
-puts html
+# dbc = DB_controller.new("test.db")
+# dbc.test_insert
+# html = dbc.select_status_table
+# puts "11111"
+# puts html
 
 # puts "\n\n"
 
@@ -212,38 +237,10 @@ puts html
 # 	puts
 # end
 
-
-# deleted_row = dbc.delete_thread_with_id(14)
-# puts "delete_thread_with_id = #{deleted_row}"
-
-
-# puts "22222"
-# html = dbc.select_status_table
-# puts html
-
-
-# deleted_row = dbc.delete_client_with_id(2)
-# puts "delete_client_with_id = #{deleted_row}"
-
-# puts "33333"
-# html = dbc.select_status_table
-# puts html
-
-
-# client = dbc.add_client(dbc.client_hash_with_params(100,"test","ssssss"))
-# if client
-# 	puts "client #{client}"
-# else
-# 	puts "client false"
-# end
-
-
-# thread = dbc.add_thread_for_client(dbc.thread_hash_with_params(1333,1,"ssssss",200,60),100)
-# if thread
-# 	puts "thread #{thread}"
-# else
-# 	puts "thread false"
-# end
+# dbc.is_exist_client_with_id(10)
+# dbc.is_exist_client_with_id(2)
+# dbc.is_exist_thread_with_id(100)
+# dbc.is_exist_thread_with_id(13)
 
 # html = dbc.select_status_table
 # puts html

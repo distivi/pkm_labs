@@ -5,6 +5,10 @@ require 'uri'
 require "http/parser"
 require 'json'
 
+#local files
+require './restful_parser'
+require './db_controller'
+
 
 READ_CHUNK = 1024 * 4
 
@@ -24,98 +28,40 @@ CONTENT_TYPE_MAPPING = {
 DEFAULT_CONTENT_TYPE = 'application/octet-stream'
 
 
-class RESTfulParser
-	def parse_request(request_line)
-		puts "request_line #{request_line}"
-		chunks = request_line.split(" ")
-		method = chunks[0]
-		request_uri = chunks[1]
-
-
-		puts "method #{method}"
-		puts "request_uri #{request_uri}"
-		
-		result = nil
-		type = nil
-
-		type, result = case method
-		when "GET"
-			parse_get(request_uri)
-		when "POST"
-			parse_post(request_uri)
-		when "PUT"
-			parse_post(request_uri)
-		when "DELETE"
-			parse_delete(request_uri)
-		end
-
-		puts "type: #{type}, result: #{result}"
-
-		return type, result
-	end
-
-	def parse_get(uri)
-		path = URI(uri).path
-		clean = []
-		# Split the path into components
-		parts = path.split("/")
-
-		parts.each do |part|
-			# skip any empty or current directory (".") path components
-			next if part.empty? || part == '.'
-			# If the path component goes up one directory level (".."),
-			# remove the last clean component.
-			# Otherwise, add the component to the Array of clean components
-			part == '..' ? clean.pop : clean << part
-		end
-		# return the web root joined to the clean path
-		return "path", File.join(WEB_ROOT, *clean)
-	end
-
-	def parse_post(uri)
-		puts "parse_post #{uri}"
-		return "json", {success: "post parrams"}
-	end
-
-	def parse_delete(uri)
-		return "json", {"test" => "delete message"}
-	end
-end
-
-
 class Server
 	def initialize( port, ip )
 		@server = TCPServer.open( ip, port )
 		@requests_parser = RESTfulParser.new()
+		@DBController = DB_controller.new("development.db")
 		run
 	end
 
-	def requested_file(request_line)
-		# puts "request_line #{request_line}"
+	# def requested_file(request_line)
+	# 	# puts "request_line #{request_line}"
 
-		request_uri  = request_line.split(" ")[1]
-		# puts "[0] #{request_line.split(" ")[0]}"
-		# puts "request_uri #{request_uri}"
-		path = URI(request_uri).path
-		# puts "URI(request_uri).path === #{path}"
+	# 	request_uri  = request_line.split(" ")[1]
+	# 	# puts "[0] #{request_line.split(" ")[0]}"
+	# 	# puts "request_uri #{request_uri}"
+	# 	path = URI(request_uri).path
+	# 	# puts "URI(request_uri).path === #{path}"
 
-		clean = []
+	# 	clean = []
 
-		# Split the path into components
-		parts = path.split("/")
+	# 	# Split the path into components
+	# 	parts = path.split("/")
 
-		parts.each do |part|
-			# skip any empty or current directory (".") path components
-			next if part.empty? || part == '.'
-			# If the path component goes up one directory level (".."),
-			# remove the last clean component.
-			# Otherwise, add the component to the Array of clean components
-			part == '..' ? clean.pop : clean << part
-		end
+	# 	parts.each do |part|
+	# 		# skip any empty or current directory (".") path components
+	# 		next if part.empty? || part == '.'
+	# 		# If the path component goes up one directory level (".."),
+	# 		# remove the last clean component.
+	# 		# Otherwise, add the component to the Array of clean components
+	# 		part == '..' ? clean.pop : clean << part
+	# 	end
 
-		# return the web root joined to the clean path
-		File.join(WEB_ROOT, *clean)
-	end
+	# 	# return the web root joined to the clean path
+	# 	File.join(WEB_ROOT, *clean)
+	# end
 
 	def content_type(path)
 		ext = File.extname(path).split(".").last
@@ -154,7 +100,7 @@ class Server
 
 	def send_json_to_client(json,client)
 		json_string = json.to_json
-
+		puts "json_string: #{json_string}"
 		client.print "HTTP/1.1 201 Created\r\n" +
 					 "Content-Type: application/json; charset=utf-8\r\n" +
 					 "Content-Length: #{json_string.size}\r\n" +
@@ -188,5 +134,12 @@ class Server
 	end
 end
 
+# dbc = DB_controller.new("test.db")
+# dbc.test_insert
+# html = dbc.select_status_table
+# puts "11111"
+# puts html
+
 port = ARGV[0] || 3000 
 Server.new( port, "localhost" )
+

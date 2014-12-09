@@ -4,15 +4,42 @@
 	<meta charset="UTF-8">
 	<title>Client</title>
 	<link rel="stylesheet" href="client.css">
+	<link rel="stylesheet" href="table.css">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="client.js"></script>
 </head>
 <body>
-	<p>Client</p>
-	<div id="btn-get" class="btn">Test GET</div>
-	<div id="btn-post" class="btn" >Test POST</div>
-	<div id="btn-put" class="btn" >Test PUT</div>
-	<div id="btn-delete" class="btn" >Test DELETE</div>
+
+	<div class="task-manager">
+	</div>
+	<div class="side-bar">
+		<div class="input-block">
+			<p><b>Client ID:</b><br>
+				<input id="client-id-tf" type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57' size="40">
+			</p>
+			<p><b>Client Name:</b><br>
+				<input id="client-name-tf" type="text" size="40">
+			</p>
+			<p><b>Client Status:</b><br>
+				<input id="client-status-tf" type="text" size="40">
+			</p>
+			<p><b>Thread ID:</b><br>
+				<input id="thread-id-tf" type="number"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' size="40">
+			</p>
+			<p><b>Thread Priority:</b><br>
+				<input id="thread-priority-tf" type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57' size="40">
+			</p>
+			<p><b>Thread Task:</b><br>
+				<input id="thread-task-tf" type="text" size="40">
+			</p>
+
+			<div id="submit-task" class="btn" >Add task</div>
+		</div>
+
+		<div id="btn-post" class="btn" >Test POST</div>
+		<div id="btn-put" class="btn" >Test PUT</div>
+		<div id="btn-delete" class="btn" >Test DELETE</div>
+	</div>
 
 	<div class="parent" id="waiting-spiner" hidden>
 		<div class="popup">
